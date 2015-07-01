@@ -15,10 +15,10 @@
  * @version 1.2
  */
 
-define('C_FULL_PATH', 'C:/wamp/www/glight_original/'); //full path
+define('C_FULL_PATH', "C:/wamp/www/glightPLUS/"); //full path
 
-define('C_L_GLOBAL', 'http://localhost/glight_original/'); //application global link
-define('C_N_GLOBAL', 'Framework G - glight'); //application global title
+define('C_L_GLOBAL', 'http://localhost/glightPLUS/'); //application global link
+define('C_N_GLOBAL', 'Framework G - glightPLUS'); //application global title
 
 define('C_DB_SERVER', 'localhost'); //DB server
 define('C_DB_USER', 'root'); //DB user

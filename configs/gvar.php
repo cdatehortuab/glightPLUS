@@ -18,8 +18,8 @@ $gvar=array();
 //messages
 
 //links and names
-$gvar['l_global'] = "http://localhost/glight_original/";
-$gvar['n_global'] = "Framework G";
+$gvar['l_global'] = C_L_GLOBAL;
+$gvar['n_global'] = C_N_GLOBAL;
 
 $gvar['n_login'] = "Login";
 $gvar['n_logout'] = "Logout";
