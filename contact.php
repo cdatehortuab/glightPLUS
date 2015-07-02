@@ -6,8 +6,9 @@ class c_contact extends super_controller {
 
 	public function display()
 	{		
-		$this->engine->assign('title',$this->gvar['n_contact']);
-		$this->engine->assign('active',$this->gvar['n_contact']);
+		$this->engine->assign('title',$this->gvar['contact']['name']);
+		$this->engine->assign('active',$this->gvar['contact']['name']);
+		$this->engine->assign('where', 'contact');
 		
 		$this->engine->display('header.tpl');
 		$this->engine->display('contact.tpl');

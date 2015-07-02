@@ -1,31 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="shortcut icon" href="{$gvar.l_global}favicon.ico" />
 <title>{$title}</title>
-{literal} 
-<style type="text/css"> @import url({/literal}{$gvar.l_global}{literal}css/bootstrap.css); </style>
-<style type="text/css"> @import url({/literal}{$gvar.l_global}{literal}css/bootstrap-responsive.css); </style>
-<style type="text/css"> @import url({/literal}{$gvar.l_global}{literal}css/t_dark.css); </style>
-<script type='text/javascript'>l_global = '{/literal}{$gvar.l_global}{literal}';</script>
-<script src="{/literal}{$gvar.l_global}{literal}js/jquery-1.7.2.min.js" language="Javascript"></script>
-<script src="{/literal}{$gvar.l_global}{literal}js/bootstrap.js" language="Javascript"></script>
-{/literal}
+{if $gvar.environment eq 'development'}
+<link href="{$gvar.l_global}css/bootstrap.css" rel="stylesheet">
+<link href="{$gvar.l_global}css/bootstrap-theme.css" rel="stylesheet">
+<script type='text/javascript'>l_global = '{$gvar.l_global}';</script>
+<script src="{$gvar.l_global}js/jquery-1.11.3.js"></script>
+<script src="{$gvar.l_global}js/bootstrap.js"></script>
+{elseif $gvar.environment eq 'production'}
+<link href="{$gvar.l_global}css/bootstrap.min.css" rel="stylesheet">
+<link href="{$gvar.l_global}css/bootstrap-theme.min.css" rel="stylesheet">
+<script type='text/javascript'>l_global = '{$gvar.l_global}';</script>
+<script src="{$gvar.l_global}js/jquery-1.11.3.min.js"></script>
+<script src="{$gvar.l_global}js/bootstrap.min.js"></script>
+{/if}
 </head>
 
 <body>
-<div id="top-background">
+
 <!-- Begin Container -->
 <div class="container">
 
 <!-- Begin Menu Header -->
-<div class="navbar navbar-inverse">
-<div class="navbar-inner">
-<div class="container" style="width: auto;">
-<a class="brand" href="{$gvar.l_index}"><img src="{$gvar.l_global}images/logo.png" /></a>
-<ul class="nav">
-    <li {if isset($active)}{if $active eq {$gvar.n_index}}class="active"{/if}{/if}><a href="{$gvar.l_index}">{$gvar.n_index}</a></li>
+<nav class="navbar navbar-inverse">
+<div class="container-fluid">
+<div class="navbar-header">
+	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	</button>
+	<a class="brand" href="{$gvar.index.link}"><img src="{$gvar.l_global}images/logo.png" /></a>
+</div>
+<div id="navbar" class="navbar-collapse collapse">
+<ul class="nav navbar-nav">
+    <li {if isset($active)}{if $active eq {$gvar.index.name}}class="active"{/if}{/if}><a href="{$gvar.index.link}">{$gvar.index.name}</a></li>
     {if isset($smarty.session.user) && $smarty.get.option neq 'logout'}
     <li class="dropdown">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin Panel <b class="caret"></b></a>
@@ -33,30 +48,43 @@
         <li><a href="{$gvar.l_admin_index}">{$gvar.n_admin_index}</a></li>
         <li><a href="{$gvar.l_admin_control}">{$gvar.n_admin_control}</a></li>
       </ul>
-    </li>
-    <li><a href="{$gvar.l_index}?option=logout">{$gvar.n_logout}</a></li>
-    {else}
-    <li><a href="{$gvar.l_index}#login">{$gvar.n_login}</a></li>
+    </li>   
     {/if}
+	<li {if isset($active)}{if $active eq {$gvar.contact.name}}class="active"{/if}{/if}><a href="{$gvar.contact.link}">{$gvar.contact.name}</a></li>
 </ul>
-  <form class="navbar-search pull-left" action="">
-    <input type="text" class="search-query span2" placeholder="Search">
-  </form>
-<ul class="nav pull-right">
-    <li {if isset($active)}{if $active eq {$gvar.n_contact}}class="active"{/if}{/if}><a href="{$gvar.l_contact}">{$gvar.n_contact}</a></li>
-    <li class="divider-vertical"></li>
-    <a href="http://twitter.com/frameworkg"><img src="{$gvar.l_global}images/twtt.png" /></a>
+<ul class="nav navbar-nav navbar-right">
+	{if isset($smarty.session.user) && $smarty.get.option neq 'logout'}    
+		<li><a href="{$gvar.index.link}?option=logout">{$gvar.n_logout}</a></li>
+	{else}
+		<li><a href="{$gvar.index.link}#login">{$gvar.n_login}</a></li>
+	{/if}
 </ul>
 </div>
 </div>
-</div>
+</nav>
 <!-- Begin End Header -->
 
 <!-- Begin Content -->
 <div id="content"> 
-
 <!-- Begin Navigation -->
-<table cellpadding="0" class="navigation"><tr><td align="left" valign="top">
+<ol class="breadcrumb">
+{if isset($where)}
+	{$page = $where}
+	{$i = 0}
+	{$breadcrumb = array()}
+	{while $page != null}
+		{$breadcrumb[$i] = $page}
+		{$page = $gvar[$page].father}
+		{$i = $i + 1}
+	{/while}
+	{while $i > 1}
+		{$i = $i - 1}
+		<li><a href="{$gvar[$breadcrumb[$i]].link}">{$gvar[$breadcrumb[$i]].name}</a></li>
+	{/while}
+	<li class="active">{$gvar[$where].name}</li>
+{/if}
+</ol>
+{*<table cellpadding="0" class="navigation"><tr><td align="left" valign="top">
 <div class="where_middle"><div class="where_right"><div class="where_left">
 <b>Navigation:</b>
 {if isset($where)}
@@ -66,11 +94,10 @@
 {/section}
 {/if}
 </div></div></div>
-</td></tr></table>
+</td></tr></table>*}
 <!-- End Navigation -->
 
-<table cellpadding="0" cellspacing="10">
-<tr><td align="left" width="210px" valign="top">
+<div class="col-md-2">
 {include file='lateral.tpl'}
-</td>
-<td align="left" valign="top">
+</div>
+<div class="col-md-10">

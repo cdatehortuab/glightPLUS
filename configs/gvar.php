@@ -15,6 +15,8 @@
  
 $gvar=array();
 
+$gvar['environment'] = C_ENVIRONMENT;
+
 //messages
 
 //links and names
@@ -24,9 +26,11 @@ $gvar['n_global'] = C_N_GLOBAL;
 $gvar['n_login'] = "Login";
 $gvar['n_logout'] = "Logout";
 
-$gvar['l_index'] = $gvar['l_global']."index.php";
-$gvar['n_index'] = "Home";
-$gvar['l_contact'] = $gvar['l_global']."contact.php";
-$gvar['n_contact'] = "Contact";
+$gvar['index']['link'] = $gvar['l_global']."index.php";
+$gvar['index']['name'] = "Home";
+$gvar['index']['father'] = null;
+$gvar['contact']['link'] = $gvar['l_global']."contact.php";
+$gvar['contact']['name'] = "Contact";
+$gvar['contact']['father'] = 'index';
 
 ?>

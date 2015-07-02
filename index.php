@@ -6,8 +6,9 @@ class c_index extends super_controller {
 	
 	public function display()
 	{
-		$this->engine->assign('title',$this->gvar['n_index']);
-		$this->engine->assign('active',$this->gvar['n_index']);
+		$this->engine->assign('title',$this->gvar['index']['name']);
+		$this->engine->assign('active',$this->gvar['index']['name']);
+		$this->engine->assign('where', 'index');
 		
 		$this->engine->display('header.tpl');
 		$this->engine->display('index.tpl');

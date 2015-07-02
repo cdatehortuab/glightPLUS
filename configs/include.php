@@ -32,4 +32,19 @@ require(C_FULL_PATH."modules/orm.php"); //Object Relational Mapping
 require(C_FULL_PATH."modules/db.php"); //database manager
 require(C_FULL_PATH."configs/functions.php"); //functions of general use
 
+define('C_ENVIRONMENT', 'development');
+
+switch (C_ENVIRONMENT) {
+	case 'development':
+		error_reporting(E_ALL);
+		break;
+
+	case 'production':
+		error_reporting(0);
+		break;
+
+	default:
+		exit('The application environment is not set correctly.');
+}
+
 ?>
