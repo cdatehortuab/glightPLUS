@@ -19,6 +19,14 @@
 <script src="{$gvar.l_global}js/jquery-1.11.3.min.js"></script>
 <script src="{$gvar.l_global}js/bootstrap.min.js"></script>
 {/if}
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+
 </head>
 
 <body>
@@ -40,7 +48,7 @@
 </div>
 <div id="navbar" class="navbar-collapse collapse">
 <ul class="nav navbar-nav">
-    <li {if isset($active)}{if $active eq {$gvar.index.name}}class="active"{/if}{/if}><a href="{$gvar.index.link}">{$gvar.index.name}</a></li>
+    <li {if isset($active)}{if $active eq {$gvar.index.link}}class="active"{/if}{/if}><a href="{$gvar.index.link}">{$gvar.index.name.$lang}</a></li>
     {if isset($smarty.session.user) && $smarty.get.option neq 'logout'}
     <li class="dropdown">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin Panel <b class="caret"></b></a>
@@ -50,7 +58,7 @@
       </ul>
     </li>   
     {/if}
-	<li {if isset($active)}{if $active eq {$gvar.contact.name}}class="active"{/if}{/if}><a href="{$gvar.contact.link}">{$gvar.contact.name}</a></li>
+	<li {if isset($active)}{if $active eq {$gvar.contact.link}}class="active"{/if}{/if}><a href="{$gvar.contact.link}">{$gvar.contact.name.$lang}</a></li>
 </ul>
 <ul class="nav navbar-nav navbar-right">
 	{if isset($smarty.session.user) && $smarty.get.option neq 'logout'}    
@@ -79,22 +87,11 @@
 	{/while}
 	{while $i > 1}
 		{$i = $i - 1}
-		<li><a href="{$gvar[$breadcrumb[$i]].link}">{$gvar[$breadcrumb[$i]].name}</a></li>
+		<li><a href="{$gvar[$breadcrumb[$i]].link}">{$gvar[$breadcrumb[$i]].name.$lang}</a></li>
 	{/while}
-	<li class="active">{$gvar[$where].name}</li>
+	<li class="active">{$gvar[$where].name.$lang}</li>
 {/if}
 </ol>
-{*<table cellpadding="0" class="navigation"><tr><td align="left" valign="top">
-<div class="where_middle"><div class="where_right"><div class="where_left">
-<b>Navigation:</b>
-{if isset($where)}
-{section name=i loop=$where}{if !empty($where[i].link)}<a href="{$where[i].link}">{/if}{$where[i].name} {if !empty($where[i].link)}</a>{/if}
-{if $smarty.section.i.total == 1}{else}{if $smarty.section.i.rownum == $smarty.section.i.total}{else}<b>>></b> 
-{$i.index}{/if}{/if}
-{/section}
-{/if}
-</div></div></div>
-</td></tr></table>*}
 <!-- End Navigation -->
 
 <div class="col-md-2">

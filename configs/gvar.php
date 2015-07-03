@@ -16,8 +16,16 @@
 $gvar=array();
 
 $gvar['environment'] = C_ENVIRONMENT;
+$gvar['lang'] = array('en');
+
+//Alert types with text
+$gvar['success']['en'] = "Success";
+$gvar['info']['en'] = "Info";
+$gvar['warning']['en'] = "Warning";
+$gvar['danger']['en'] = "Error";
 
 //messages
+$gvar['m_unavailable_option']['en'] = "This option is not available";
 
 //links and names
 $gvar['l_global'] = C_L_GLOBAL;
@@ -27,10 +35,10 @@ $gvar['n_login'] = "Login";
 $gvar['n_logout'] = "Logout";
 
 $gvar['index']['link'] = $gvar['l_global']."index.php";
-$gvar['index']['name'] = "Home";
+$gvar['index']['name']['en'] = "Home";
 $gvar['index']['father'] = null;
 $gvar['contact']['link'] = $gvar['l_global']."contact.php";
-$gvar['contact']['name'] = "Contact";
+$gvar['contact']['name']['en'] = "Contact";
 $gvar['contact']['father'] = 'index';
 
 ?>

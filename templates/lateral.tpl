@@ -26,8 +26,8 @@
 <h4>Menu</h4>
 <div class="well well-small" style="padding: 8px 0;">
     <ul class="nav nav-pills nav-stacked">
-      <li {if $active eq {$gvar.index.name}}class="active"{/if}><a href="{$gvar.index.link}">{$gvar.index.name}</a></li>
-      <li {if $active eq {$gvar.contact.name}}class="active"{/if}><a href="{$gvar.contact.link}">{$gvar.contact.name}</a></li>
+      <li {if $active eq {$gvar.index.link}}class="active"{/if}><a href="{$gvar.index.link}">{$gvar.index.name.$lang}</a></li>
+      <li {if $active eq {$gvar.contact.link}}class="active"{/if}><a href="{$gvar.contact.link}">{$gvar.contact.name.$lang}</a></li>
     </ul>
 </div>
 </div>
