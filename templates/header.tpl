@@ -19,6 +19,7 @@
 <script src="{$gvar.l_global}js/jquery-1.11.3.min.js"></script>
 <script src="{$gvar.l_global}js/bootstrap.min.js"></script>
 {/if}
+<script src="{$gvar.l_global}js/npm.js"></script>
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -35,7 +36,7 @@
 <div class="container">
 
 <!-- Begin Menu Header -->
-<nav class="navbar navbar-inverse">
+<header class="navbar navbar-inverse">
 <div class="container-fluid">
 <div class="navbar-header">
 	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -69,12 +70,13 @@
 </ul>
 </div>
 </div>
-</nav>
+</header>
 <!-- Begin End Header -->
 
 <!-- Begin Content -->
 <div id="content"> 
 <!-- Begin Navigation -->
+<nav>
 <ol class="breadcrumb">
 {if isset($where)}
 	{$page = $where}
@@ -92,9 +94,14 @@
 	<li class="active">{$gvar[$where].name.$lang}</li>
 {/if}
 </ol>
+</nav>
 <!-- End Navigation -->
 
 <div class="col-md-2">
+<aside>
 {include file='lateral.tpl'}
+</aside>
 </div>
+
 <div class="col-md-10">
+<section>
