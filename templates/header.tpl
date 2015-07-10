@@ -73,8 +73,6 @@
 </header>
 <!-- Begin End Header -->
 
-<!-- Begin Content -->
-<div id="content"> 
 <!-- Begin Navigation -->
 <nav>
 <ol class="breadcrumb">
@@ -97,11 +95,11 @@
 </nav>
 <!-- End Navigation -->
 
-<div class="col-md-2">
+<div class="col-sm-3 col-md-2">
 <aside>
 {include file='lateral.tpl'}
 </aside>
 </div>
 
-<div class="col-md-10">
+<div class="col-sm-9 col-md-10">
 <section>
