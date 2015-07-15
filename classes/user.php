@@ -25,7 +25,7 @@ class user extends object_standard
 	{
 		switch($class)
 		{		
-		    default:
+		    default: return NULL;
 			break;
 		}
 	}

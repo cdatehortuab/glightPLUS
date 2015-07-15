@@ -13,10 +13,11 @@
  * @version 1.2
  */
 
-abstract class object_standard
+abstract class object_standard implements JsonSerializable
 {
 
 	protected static $orm;
+	protected static $last_select = array();
 
 	var $auxiliars = array();
 
@@ -25,7 +26,7 @@ abstract class object_standard
 	function __construct($data = NULL, $components = NULL, $orm = NULL, $auxiliars = NULL)
 	{
 		if($data != NULL){$this->set_attributes($data,$auxiliars[get_class($this)]);}
-		if($components[get_class($this)] != NULL){$this->assign_components($components,$orm,$auxiliars);}
+		if(isset($components[get_class($this)]) && $components[get_class($this)] != NULL){$this->assign_components($components,$orm,$auxiliars);}
 	}
 	
 	//get attribute
@@ -118,39 +119,151 @@ abstract class object_standard
 				$j++;
 			}
 		}
-	}	
+	}
+
+	public function jsonSerialize() {
+		$return = array();
+		$class = get_class($this);
+		foreach ($class::metadata() as $attribute => $value) {
+			$return[$attribute] = $this->$attribute;
+		}
+		$return['components'] = $this->components;
+		$return['auxiliars'] = $this->auxiliars;
+
+		return $return;
+	}
 
 	static function initialize_orm() {
 		self::$orm = new orm();
 	}
 
-	public static function all($components = NULL, $auxiliars = NULL) {
+	private static function select_all($components = NULL) {
 		$orm = self::$orm;
 		$called_class = get_called_class();
-		$classes = array($called_class);
 
+		if (isset($last_select[$called_class]) && $last_select[$called_class] == "all")
+			return;
+		
 		$options[$called_class]['lvl2'] = "all";
+		$orm->read_data(array($called_class), $options);
+		$last_select[$called_class] = "all";
 
+		if ($components != NULL && isset($components[$called_class])) {
+			foreach ($components[$called_class] as $class=>$relations) {
+				foreach ($relations as $rel_name) {
+					$rk1 = $called_class::relational_keys($class, $rel_name);
+					$rk2 = $class::relational_keys($called_class, $rel_name);
+					if ($rk1 != NULL || $rk2 != NULL) {
+						$class::select_all();
+					}
+				}
+			}
+		}
+	}
+
+	public static function get_all($components = NULL, $auxiliars = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
 		$orm->connect();
-		$orm->read_data($classes, $options);
+
+		self::select_all($components);
+
 		$return = $orm->get_objects($called_class, $components, $auxiliars);
 		$orm->close();
 
 		return $return;
 	}
 
-	public static function one($object, $components = NULL, $auxiliars = NULL) {
+	private static function select_by_foreign($object, $rel_name, $components = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+		$metadata = $called_class::metadata();
+		$foreign_class = get_class($object);
+
+
+		$options[$called_class]['lvl2'] = "by_$foreign_class";
+		$attributes = $called_class::relational_keys($foreign_class, $rel_name);
+
+		foreach ($attributes as $value) {
+			$cod[$called_class][$value] = $object->get($metadata[$value]['foreign_attribute']);
+		}
+
+		$orm->read_data(array($called_class), $options, $cod);
+
+		if ($components != NULL && isset($components[$called_class])) {
+			foreach ($components[$called_class] as $class=>$relations) {
+				$class::select_all($components);
+			}
+		}
+
+	}
+
+	private static function select_one($object, $components = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$options[$called_class]['lvl2'] = "one";
+		$pk = $called_class::primary_key();
+		foreach ($pk as $value) {
+			$cod[$called_class][$value] = $object->$value;
+		}
+
+		$orm->read_data(array($called_class), $options, $cod);
+		$object = $orm->get_objects($called_class);
+		
+		if (is_empty($object)) return;
+
+		$object = $object[0];
+
+		if ($components != NULL && isset($components[$called_class])) {
+			foreach ($components[$called_class] as $class=>$relations) {
+				foreach ($relations as $rel_name) {
+					$rk1 = $called_class::relational_keys($class, $rel_name);
+					$rk2 = $class::relational_keys($called_class, $rel_name);
+					if ($rk1 != NULL) {
+						$fa = array();
+						$af = array();
+						$metadata = $called_class::metadata();
+						foreach ($rk1 as $attribute) {
+							$fa[$attribute] = $metadata[$attribute]['foreign_attribute'];
+							$af[$fa[$attribute]] = $attribute;
+						}
+						$pkf = $class::primary_key();
+						if (is_empty(array_diff($pkf, $fa))) {
+							foreach ($pkf as $value) {
+								@$obj->$value = $object->get($af[$value]);
+							}
+							$class::select_one($obj, $components);
+						} else {
+							// TODO : Lo que pasa cuando la clave foránea de una no es la primaria de la otra
+						}
+					} else if ($rk2 != NULL) {
+						$fa = array();
+						$metadata = $class::metadata();
+						foreach ($rk2 as $attribute) {
+							$fa[] = $metadata[$attribute]['foreign_attribute'];
+						}
+						if (is_empty(array_diff($pk, $fa))) {
+							$class::select_by_foreign($object, $rel_name, $components);
+						} else {
+							// TODO : Lo que pasa cuando la clave foránea de una no es la primaria de la otra
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	public static function get_one($object, $components = NULL, $auxiliars = NULL) {
 		$orm = self::$orm;
 		$called_class = get_called_class();
 		$classes = array($called_class);
 
-		$options[$called_class]['lvl2'] = "one";
-		foreach ($called_class::primary_key() as $value) {
-			$cod[$called_class][$value] = $object->$value;
-		}
-
 		$orm->connect();
-		$orm->read_data($classes, $options, $cod);
+
+		self::select_one($object, $components);
+
 		$return = $orm->get_objects($called_class, $components, $auxiliars);
 		$orm->close();
 
