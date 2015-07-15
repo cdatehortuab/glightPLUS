@@ -7,19 +7,21 @@
 <link rel="shortcut icon" href="{$gvar.l_global}favicon.ico" />
 <title>{$title}</title>
 {if $gvar.environment eq 'development'}
-<link href="{$gvar.l_global}css/bootstrap.css" rel="stylesheet">
-<link href="{$gvar.l_global}css/bootstrap-theme.css" rel="stylesheet">
+<link href="{$gvar.l_global}css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="{$gvar.l_global}css/bootstrap-theme.css" rel="stylesheet" type="text/css">
 <script type='text/javascript'>l_global = '{$gvar.l_global}';</script>
 <script src="{$gvar.l_global}js/jquery-1.11.3.js"></script>
 <script src="{$gvar.l_global}js/bootstrap.js"></script>
 {elseif $gvar.environment eq 'production'}
-<link href="{$gvar.l_global}css/bootstrap.min.css" rel="stylesheet">
-<link href="{$gvar.l_global}css/bootstrap-theme.min.css" rel="stylesheet">
+<link href="{$gvar.l_global}css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="{$gvar.l_global}css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
 <script type='text/javascript'>l_global = '{$gvar.l_global}';</script>
 <script src="{$gvar.l_global}js/jquery-1.11.3.min.js"></script>
 <script src="{$gvar.l_global}js/bootstrap.min.js"></script>
 {/if}
 <script src="{$gvar.l_global}js/npm.js"></script>
+
+<link rel="stylesheet" type="text/css" href="{$gvar.l_global}css/style.css">
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->

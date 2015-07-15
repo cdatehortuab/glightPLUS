@@ -27,10 +27,10 @@ define('C_DB_DATABASE_NAME', 'work'); //DB database name
 define('C_DB_LIMIT', 10); //DB limit of elements by page
 
 require(C_FULL_PATH."modules/super_controller.php"); //Super Controller
-require(C_FULL_PATH."modules/object_standard.php"); //Object Standard
 require(C_FULL_PATH."modules/orm.php"); //Object Relational Mapping
-require(C_FULL_PATH."modules/db.php"); //database manager
 require(C_FULL_PATH."configs/functions.php"); //functions of general use
+require(C_FULL_PATH."modules/object_standard.php"); //Object Standard
+require(C_FULL_PATH."modules/db.php"); //database manager
 
 define('C_ENVIRONMENT', 'development');
 

@@ -32,8 +32,7 @@ class super_controller
 	var $temp_aux; //template auxiliar 
 	var $temp_aux2; //template auxiliar 
 	var $temp_aux3; //template auxiliar
-	var $main_content; 
-	var $orm; //object to relational
+	var $main_content; //main content for this controller
 	
 	public function __construct()
 	{
@@ -55,8 +54,6 @@ class super_controller
 		$this->temp_aux2='empty.tpl';
 		$this->temp_aux3='empty.tpl';
 		$this->main_content = $this->where.".tpl";
-		
-		$this->orm = new orm();
 	}
 	
 	private function set_gvar_and_engine()

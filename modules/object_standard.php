@@ -13,8 +13,15 @@
  * @version 1.2
  */
 
-class object_standard
+abstract class object_standard
 {
+
+	protected static $orm;
+
+	var $auxiliars = array();
+
+	var $components = array();
+
 	function __construct($data = NULL, $components = NULL, $orm = NULL, $auxiliars = NULL)
 	{
 		if($data != NULL){$this->set_attributes($data,$auxiliars[get_class($this)]);}
@@ -31,7 +38,11 @@ class object_standard
 	{
 		foreach ($this->metadata() as $key => $attribute)
 		{
-			if(!is_empty($data->$key)){$this->set($key,$data->$key);}
+			if (isset($data->$key) && !is_empty($data->$key)) {
+				$this->set($key,$data->$key);
+			} else {
+				$this->set($key, NULL);
+			}
 		}
 		
 		if($auxiliars != NULL)
@@ -108,6 +119,46 @@ class object_standard
 			}
 		}
 	}	
+
+	static function initialize_orm() {
+		self::$orm = new orm();
+	}
+
+	public static function all($components = NULL, $auxiliars = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+		$classes = array($called_class);
+
+		$options[$called_class]['lvl2'] = "all";
+
+		$orm->connect();
+		$orm->read_data($classes, $options);
+		$return = $orm->get_objects($called_class, $components, $auxiliars);
+		$orm->close();
+
+		return $return;
+	}
+
+	public static function one($object, $components = NULL, $auxiliars = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+		$classes = array($called_class);
+
+		$options[$called_class]['lvl2'] = "one";
+		foreach ($called_class::primary_key() as $value) {
+			$cod[$called_class][$value] = $object->$value;
+		}
+
+		$orm->connect();
+		$orm->read_data($classes, $options, $cod);
+		$return = $orm->get_objects($called_class, $components, $auxiliars);
+		$orm->close();
+
+		return $return;
+	}
+
 }
+
+object_standard::initialize_orm();
 
 ?>
