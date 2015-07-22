@@ -131,13 +131,13 @@ class db
 	}
 	
 	//function that returns an array with data from a operation
-	public function select($option,$data)
+	public function select($options,$data)
 	{
 		$info = array();
-		switch($option['lvl1'])
+		switch($options['lvl1'])
 		{																																																																																																										
 			case "user":
-			switch($option['lvl2'])
+			switch($options['lvl2'])
 			{
 				case "all": 
 					//
