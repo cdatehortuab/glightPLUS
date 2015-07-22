@@ -121,6 +121,33 @@ abstract class object_standard implements JsonSerializable
 		}
 	}
 
+	public function insert($option = "normal") {
+		$orm = self::$orm;
+		$orm->connect();
+		$orm->insert_data($option, $this);
+		$orm->close();
+	}
+
+	public function update($new, $option = "normal") {
+		$orm = self::$orm;
+		$class = get_class($this);
+
+		foreach ($class::primary_key() as $value) {
+			$new->auxiliars[$value] = $this->$value;
+		}
+
+		$orm->connect();
+		$orm->update_data($option, $new);
+		$orm->close();
+	}
+
+	public function delete($option = "normal") {
+		$orm = self::$orm;
+		$orm->connect();
+		$orm->delete_data($option, $this);
+		$orm->close();
+	}
+
 	public function jsonSerialize() {
 		$return = array();
 		$class = get_class($this);
@@ -161,19 +188,6 @@ abstract class object_standard implements JsonSerializable
 		}
 	}
 
-	public static function get_all($components = NULL, $auxiliars = NULL) {
-		$orm = self::$orm;
-		$called_class = get_called_class();
-		$orm->connect();
-
-		self::select_all($components);
-
-		$return = $orm->get_objects($called_class, $components, $auxiliars);
-		$orm->close();
-
-		return $return;
-	}
-
 	private static function select_by_foreign($object, $rel_name, $components = NULL) {
 		$orm = self::$orm;
 		$called_class = get_called_class();
@@ -181,7 +195,9 @@ abstract class object_standard implements JsonSerializable
 		$foreign_class = get_class($object);
 
 
-		$options[$called_class]['lvl2'] = "by_$foreign_class";
+		$options[$called_class]['lvl2'] = "foreign";
+		$options[$called_class]['foreign_class'] = $foreign_class;
+		$options[$called_class]['rel_name'] = $rel_name;
 		$attributes = $called_class::relational_keys($foreign_class, $rel_name);
 
 		foreach ($attributes as $value) {
@@ -252,13 +268,44 @@ abstract class object_standard implements JsonSerializable
 				}
 			}
 		}
+	}
 
+	public static function select_by_attributes($object, $attributes, $components = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$options[$called_class]['lvl2'] = "attributes";
+		$options[$called_class]['attributes'] = $attributes;
+
+		foreach ($attributes as $attribute) {
+			$cod[$called_class][$attribute] = $object->attribute;
+		}
+
+		$orm->read_data(array($called_class), $options, $cod);
+
+		if ($components != NULL && isset($components[$called_class])) {
+			foreach ($components[$called_class] as $class=>$relations) {
+				$class::select_all($components);
+			}
+		}
+	}
+
+	public static function get_all($components = NULL, $auxiliars = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+		$orm->connect();
+
+		self::select_all($components);
+
+		$return = $orm->get_objects($called_class, $components, $auxiliars);
+		$orm->close();
+
+		return $return;
 	}
 
 	public static function get_one($object, $components = NULL, $auxiliars = NULL) {
 		$orm = self::$orm;
 		$called_class = get_called_class();
-		$classes = array($called_class);
 
 		$orm->connect();
 
@@ -270,6 +317,38 @@ abstract class object_standard implements JsonSerializable
 		return $return;
 	}
 
+	public static function get_by_attributes($object, $attributes, $components = NULL, $auxiliars = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$orm->connect();
+
+		self::select_by_attributes($object, $attributes, $components);
+
+		$return = $orm->get_objects($called_class, $components, $auxiliars);
+		$orm->close();
+
+		return $return;
+	}
+
+	public static function get_by_custom_options($options, $cod = NULL, $components = NULL, $auxiliars = NULL) {
+		$orm = self::$orm;
+
+		$classes = array();
+
+		foreach ($options as $class => $option) {
+			$classes[] = $class;
+			unset($options[$class]);
+			$options[$class]['lvl2'] = $option;
+		}
+
+		$orm->connect();
+		$orm->read_data($classes, $options, $cod);
+		$return = $orm->get_objects(get_called_class(), $components, $auxiliars);
+		$orm->close();
+
+		return $return;
+	}
 }
 
 object_standard::initialize_orm();
