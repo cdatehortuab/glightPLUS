@@ -15,18 +15,30 @@
  
 $gvar=array();
 
+$gvar['environment'] = C_ENVIRONMENT;
+$gvar['lang'] = array('en');
+
+//Alert types with text
+$gvar['success']['en'] = "Success";
+$gvar['info']['en'] = "Info";
+$gvar['warning']['en'] = "Warning";
+$gvar['danger']['en'] = "Error";
+
 //messages
+$gvar['m_unavailable_option']['en'] = "This option is not available";
 
 //links and names
-$gvar['l_global'] = "http://localhost/glight_original/";
-$gvar['n_global'] = "Framework G";
+$gvar['l_global'] = C_L_GLOBAL;
+$gvar['n_global'] = C_N_GLOBAL;
 
 $gvar['n_login'] = "Login";
 $gvar['n_logout'] = "Logout";
 
-$gvar['l_index'] = $gvar['l_global']."index.php";
-$gvar['n_index'] = "Home";
-$gvar['l_contact'] = $gvar['l_global']."contact.php";
-$gvar['n_contact'] = "Contact";
+$gvar['index']['link'] = $gvar['l_global']."index.php";
+$gvar['index']['name']['en'] = "Home";
+$gvar['index']['father'] = null;
+$gvar['contact']['link'] = $gvar['l_global']."contact.php";
+$gvar['contact']['name']['en'] = "Contact";
+$gvar['contact']['father'] = 'index';
 
 ?>

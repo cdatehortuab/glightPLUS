@@ -16,9 +16,11 @@
 class super_controller 
 {
 	//vars
+	var $where; //Name of the page
+	var $lang; //Language to display the page
 	var $engine; //template engine
 	var $gvar; //links - global vars
-	var $type_warning; //type warning (allowed: information - success - error - alerts)
+	var $type_warning; //type warning (allowed: info- success - danger - warning) 
 	var $msg_warning; //message warning
 	var $error; //activator error
 	var $get; //GET
@@ -29,14 +31,16 @@ class super_controller
 	
 	var $temp_aux; //template auxiliar 
 	var $temp_aux2; //template auxiliar 
-	var $temp_aux3; //template auxiliar 
-	var $orm; //object to relational
+	var $temp_aux3; //template auxiliar
+	var $main_content; //main content for this controller
 	
 	public function __construct()
 	{
+		$this->where = substr(get_class($this), 2);
+		
 		$this->set_gvar_and_engine();
 		
-		$this->type_warning="error";
+		$this->type_warning="danger";
 		$this->msg_warning="";
 		$this->error=0;
 		
@@ -49,8 +53,7 @@ class super_controller
 		$this->temp_aux='empty.tpl';
 		$this->temp_aux2='empty.tpl';
 		$this->temp_aux3='empty.tpl';
-		
-		$this->orm = new orm();
+		$this->main_content = $this->where.".tpl";
 	}
 	
 	private function set_gvar_and_engine()
@@ -67,7 +70,39 @@ class super_controller
 		$this->engine->compile_dir = C_FULL_PATH."templates_c";
 		//end smarty configuration
 		
+		$this->lang = $this->gvar['lang'][0];
+		
 		$this->engine->assign('gvar',$gvar); //assign vars
+		$this->engine->assign('where', $this->where);
+		$this->engine->assign('title', $this->gvar[$this->where]['name'][$this->lang]." | ".$this->gvar['n_global']);
+		$this->engine->assign('active', $this->gvar[$this->where]['link']);
+		$this->engine->assign('lang', $this->lang);
+	}
+	
+	public function run() {
+		try {
+			if (isset($this->get->option)) {
+				if (method_exists($this, $this->get->option))
+					$this->{$this->get->option}();
+				else
+					throw_exception($this->gvar['m_unavailable_option'][$this->lang]);
+			}
+		} catch (Exception $e) {
+			$this->error = 1;
+			$this->msg_warning = $e->getMessage();
+			$this->temp_aux = 'message.tpl';
+			$this->engine->assign('type_warning',$this->type_warning);
+			$this->engine->assign('msg_warning',$this->msg_warning);
+		}
+		$this->display();
+	}
+	
+	public function display()
+	{
+		$this->engine->display('header.tpl');
+		$this->engine->display($this->temp_aux);
+		$this->engine->display($this->main_content);
+		$this->engine->display('footer.tpl');
 	}
 }
 

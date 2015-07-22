@@ -36,7 +36,7 @@ class orm
 		for ($i=0,$n=count($class); $i<$n; $i++)		
 		{
 			$options["$class[$i]"]['lvl1']=$class[$i];
-			$this->data["$class[$i]"] = $this->db->select($options["$class[$i]"],$cod["$class[$i]"]);
+			$this->data["$class[$i]"] = $this->db->select($options["$class[$i]"],isset($cod["$class[$i]"]) ? $cod["$class[$i]"] : $cod);
 			$this->numpages["$class[$i]"] = $this->db->numpages;
 		}
 	}
@@ -45,6 +45,7 @@ class orm
 	public function get_objects($class, $components = NULL, $auxiliars = NULL)
 	{
 		unset($this->objects_to_return);
+		$this->objects_to_return = array();
 		$pos=0;
 		$data = $this->get_data($class,$pos);
 		while($data != NULL)
@@ -59,7 +60,7 @@ class orm
 	//return data
 	public function get_data($class,$pos)
 	{
-		$data = $this->data[$class][$pos];
+		$data = isset($this->data[$class][$pos]) ? $this->data[$class][$pos] : NULL;
 		return $data;
 	}
 	
