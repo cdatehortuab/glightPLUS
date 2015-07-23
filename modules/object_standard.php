@@ -349,6 +349,63 @@ abstract class object_standard implements JsonSerializable
 
 		return $return;
 	}
+
+	public static function get_by_foreign($object, $rel_name, $components = NULL, $auxiliars = NULL) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$orm->connect();
+
+		self::select_by_foreign($object, $rel_name, $components);
+
+		$return = $orm->get_objects($called_class, $components, $auxiliars);
+		$orm->close();
+
+		return $return;
+	}
+
+	public static function insert_multiples($objects, $option = "multiples") {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$orm->connect();
+		$orm->insert_data($option, $objects, $called_class);
+		$orm->close();
+	}
+
+	public static function delete_all() {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$orm->connect();
+		$orm->delete_data("all", new $called_class());
+		$orm->close();
+	}
+
+	public static function delete_by_foreign($object, $rel_name) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$obj = new $called_class();
+		$obj->auxiliars['foreign_object'] = $object;
+		$obj->auxiliars['rel_name'] = $rel_name;
+
+		$orm->connect();
+		$orm->delete_data("foreign", $obj);
+		$orm->close();
+	}
+
+	public static function delete_by_attributes($object, $attributes) {
+		$orm = self::$orm;
+		$called_class = get_called_class();
+
+		$object = new $called_class($object);
+		$object->auxiliars['attributes'] = $attributes;
+
+		$orm->connect();
+		$orm->delete_data("attributes", $object);
+		$orm->close();
+	}
 }
 
 object_standard::initialize_orm();

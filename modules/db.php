@@ -64,70 +64,91 @@ class db
 	//for avoid sql injections, this functions cleans the variables
 	private function escape_string(&$data)
 	{
-		if(is_object($data))
-		{
-			foreach ($data->metadata() as $key => $attribute)
-			{if(!is_empty($data->get($key))){$data->set($key,mysqli_real_escape_string($this->cn,$data->get($key)));}}
-		}
-		else if(is_array($data))
-		{
-			foreach ($data as $key => $value) 
-			{if(!is_array($value)){$data[$key]=mysqli_real_escape_string($this->cn,$value);}}
+		if(is_object($data)) {
+			foreach ($data->metadata() as $key => $attribute) {
+				if (!is_empty($data->get($key))) {
+					$data->set($key, mysqli_real_escape_string($this->cn,$data->get($key)));
+				}
+			}
+			$this->escape_string($data->auxiliars);
+			$this->escape_string($data->components);
+		
+		} else if(is_array($data)) {
+			foreach ($data as $key => $value) {
+				$this->escape_string($data[$key]);
+			}
+		} else {
+			$data = mysqli_real_escape_string($this->cn, $data);
 		}
 	}
 	
 	//function for add data to db
-	public function insert($options,$object) 
+	public function insert($options,$data) 
 	{
-		switch($options['lvl1'])
-		{																																																																																													
-			case "user":
-			switch($options['lvl2'])
-			{
-				case "normal":
-					//
-					break;
+		$this->escape_string($data);
+		$query = NULL;
+		if ($query == NULL) {
+			switch($options['lvl1'])
+			{																																																																																													
+				case "user":
+				switch($options['lvl2'])
+				{
+					case "normal":
+						//
+						break;
+				}
+				break;
+				
+				default: break;
 			}
-			break;
-			
-			default: break;
 		}
+		$this->do_operation($query, $options['lvl1']);
 	}
 	
 	//function for edit data from db
-	public function update($options,$object) 
+	public function update($options,$data) 
 	{
-		switch($options['lvl1'])
-		{																																																																																																		
-			case "user":
-			switch($options['lvl2'])
-			{
-				case "normal":
-					//
-					break;
+		$this->escape_string($data);
+		$query = NULL;
+		if ($query == NULL) {
+			switch($options['lvl1'])
+			{																																																																																																		
+				case "user":
+				switch($options['lvl2'])
+				{
+					case "normal":
+						//
+						break;
+				}
+				break;
+				
+				default: break;
 			}
-			break;
-			
-			default: break;
 		}
+		$this->do_operation($query, $options['lvl1']);
 	}
 	
 	//function for delete data from db
-	public function delete($options,$object)
+	public function delete($options,$data)
 	{
-		switch($options['lvl1'])
-		{																																																																																												
-			case "user":
-			switch($options['lvl2'])
-			{
-				case "normal": 
-					//
-					break;
+		$this->escape_string($data);
+		$query = NULL;
+		if ($query == NULL) {
+			switch($options['lvl1'])
+			{																																																																																												
+				case "user":
+				switch($options['lvl2'])
+				{
+					case "normal": 
+						//
+						break;
+				}
+				break;
+				
+				default: break;			  
 			}
-			break;
-			
-			default: break;			  
 		}
+		$this->do_operation($query, $options['lvl1']);
 	}
 	
 	//function that returns an array with data from a operation
@@ -155,7 +176,7 @@ class db
 	{
 		if($this->cn){mysqli_close($this->cn);}
 	}
-	
+
 }
 
 ?>
