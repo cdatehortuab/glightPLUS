@@ -65,12 +65,12 @@ class orm
 	}
 	
 	//insert data in db
-	public function insert_data($lvl2, $object, $get_id = 'no')
+	public function insert_data($lvl2, $data, $lvl1 = NULL, $get_id = 'no')
 	{
-		$options['lvl1']=get_class($object);
+		$options['lvl1']=($lvl1 != NULL) ? $lvl1 : get_class($data);
 		$options['lvl2']=$lvl2;
-		if($get_id == 'no'){$this->db->insert($options,$object,$get_id);}
-		else{$this->last_id[get_class($object)] = $this->db->insert($options,$object,$get_id);}
+		if($get_id == 'no'){$this->db->insert($options,$data,$get_id);}
+		else{$this->last_id[$options['lvl1']] = $this->db->insert($options,$data,$get_id);}
 	}
 	
 	//update data from db
