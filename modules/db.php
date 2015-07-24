@@ -86,10 +86,10 @@ class db
 	public function insert($options,$data) 
 	{
 		$this->escape_string($data);
-		$query = NULL;
+		$query = $this->query_insert($options, $data);
 		if ($query == NULL) {
 			switch($options['lvl1'])
-			{																																																																																													
+			{
 				case "user":
 				switch($options['lvl2'])
 				{
@@ -109,10 +109,10 @@ class db
 	public function update($options,$data) 
 	{
 		$this->escape_string($data);
-		$query = NULL;
+		$query = $this->query_update($options, $data);
 		if ($query == NULL) {
 			switch($options['lvl1'])
-			{																																																																																																		
+			{
 				case "user":
 				switch($options['lvl2'])
 				{
@@ -132,10 +132,10 @@ class db
 	public function delete($options,$data)
 	{
 		$this->escape_string($data);
-		$query = NULL;
+		$query = $this->query_delete($options, $data);
 		if ($query == NULL) {
 			switch($options['lvl1'])
-			{																																																																																												
+			{
 				case "user":
 				switch($options['lvl2'])
 				{
@@ -155,19 +155,23 @@ class db
 	public function select($options,$data)
 	{
 		$info = array();
-		switch($options['lvl1'])
-		{																																																																																																										
-			case "user":
-			switch($options['lvl2'])
+		$query = $this->query_select($options, $data);
+		if ($query == NULL) {
+			switch($options['lvl1'])
 			{
-				case "all": 
-					//
-					break;
+				case "user":
+				switch($options['lvl2'])
+				{
+					case "all": 
+						//
+						break;
+				}
+				break;
+				
+				default: break;
 			}
-			break;
-			
-			default: break;
 		}
+		$info = $this->get_data($query);
 		return $info;
 	}
 	
@@ -176,7 +180,219 @@ class db
 	{
 		if($this->cn){mysqli_close($this->cn);}
 	}
+	
+	private function query_insert($options, $data) {
+		
+		function object_insert($object, &$metadata) {
+			$obj_query = "(";
+			$first = true;
+			foreach ($metadata as $attribute => $value) {
+				if (!$first)
+					$obj_query .= ", ";
 
+				$obj_query .= ($object->get($attribute) != NULL) ? "'{$object->get($attribute)}'" : "NULL";
+				$first = false;
+			}
+			$obj_query .= ")";
+			return $obj_query;
+		}
+
+		$class = $options['lvl1'];
+		$lvl2 = $options['lvl2'];
+		$metadata = $class::metadata();
+		
+		$query1 = "INSERT INTO {$class}(";
+		$first = true;
+		foreach ($metadata as $attribute => $value) {
+			if (!$first)
+				$query1 .= ", ";
+
+			$query1 .= $attribute;
+			$first = false;
+		}
+		$query1 .= ") VALUES ";
+
+		switch ($lvl2) {
+			case "normal":
+				return $query1.object_insert($data, $metadata).";";
+				break;
+
+			case "multiples":
+				$query2 = "";
+				$first = true;
+				foreach ($data as $object) {
+					if (!$first) 
+						$query2 .= ", ";
+
+					$query2 .= object_insert($object, $metadata);
+					$first = false;
+				}
+				return $query1.$query2.";";
+				break;
+			
+			default:
+				return NULL;
+				break;
+		}
+	}
+	
+	private function query_update($options, $data) {
+		$class = $options['lvl1'];
+		$lvl2 = $options['lvl2'];
+		$metadata = $class::metadata();
+		
+		switch ($lvl2) {
+			case "normal":
+				$query = "UPDATE {$class} SET ";
+				$first = true;
+				foreach ($metadata as $attribute => $value) {
+					if ($data->get($attribute) != NULL) { 
+						if (!$first)
+							$query .= ', ';
+						$query .= "{$attribute} = '{$data->get($attribute)}'";
+						$first = false;
+					}
+				}
+
+				$query .= " WHERE ";
+
+				$first = true;
+				foreach ($class::primary_key() as $attribute) {
+					if (!$first)
+						$query .= ' AND ';
+					$query .= "{$attribute} = ".(($data->auxiliars[$attribute] != NULL) ? "'{$data->auxiliars[$attribute]}'" : "NULL");
+					$first = false;
+				}
+
+				return $query.";";
+				break;
+
+			default:
+				return NULL;
+				break;
+		}
+		
+	}
+	
+	private function query_delete($options, $data) {
+		$class = $options['lvl1'];
+		$lvl2 = $options['lvl2'];
+
+		$query = "DELETE FROM {$class}";
+
+		switch ($lvl2) {
+			case "normal":
+				$query .= " WHERE ";
+				$pk = $class::primary_key();
+				$first = true;
+				foreach ($pk as $attribute) {
+					if (!$first)
+						$query .= " AND ";
+					$query .= "{$attribute} = ".(($data->get($attribute) != NULL) ? "'{$data->get($attribute)}'" : "NULL");
+					$first = false;
+				}
+				return $query.";";
+				break;
+			
+			case "all":
+				return $query.";";
+				break;
+
+			case "attributes":
+				$attributes = $data->auxiliars['attributes'];
+				$query .= " WHERE ";
+				$first = true;
+				foreach ($attributes as $attribute) {
+					if (!$first)
+						$query .= " AND ";
+					$query .= "{$attribute} = ".(($data->get($attribute) != NULL) ? "'{$data->get($attribute)}'" : "NULL");
+					$first = false;
+				}
+				return $query.";";
+				break;
+
+			case "foreign":
+				$query .= " WHERE ";
+				$foreign_object = $data->auxiliars['foreign_object'];
+				$rel_name = $data->auxiliars['rel_name'];
+				$foreign_class = get_class($foreign_object);
+				$rk = $class::relational_keys($foreign_class, $rel_name);
+				$metadata = $class::metadata();
+				$first = true;
+				foreach ($rk as $attribute) {
+					if (!$first)
+						$query .= " AND ";
+					$foreign_attribute = $metadata[$attribute]['foreign_attribute'];
+					$query .= "{$attribute} = ".(($foreign_object->get($foreign_attribute) != NULL) ? "'{$foreign_object->get($foreign_attribute)}'" : "NULL");
+					$first = false;
+				}
+				return $query.";";
+				break;
+
+			default:
+				return NULL;
+				break;
+		}		
+	}
+	
+	private function query_select($options, $data) {
+		$class = $options['lvl1'];
+		$lvl2 = $options['lvl2'];
+		
+		$query = "SELECT * FROM {$class}";
+
+		switch ($lvl2) {
+			case "one":
+				$query .= " WHERE ";
+				$pk = $class::primary_key();
+				$first = true;
+				foreach ($pk as $attribute) {
+					if (!$first)
+						$query .= " AND ";
+					$query .= "{$attribute} = ".(($data[$attribute] != NULL) ? "'{$data[$attribute]}'" : "NULL");
+					$first = false;
+				}
+				return $query.";";
+				break;
+			
+			case "all":
+				return $query.";";
+				break;
+
+			case "attributes":
+				$attributes = $options['attributes'];
+				$query .= " WHERE ";
+				$first = true;
+				foreach ($attributes as $attribute) {
+					if (!$first)
+						$query .= " AND ";
+					$query .= "{$attribute} = ".(($data[$attribute] != NULL) ? "'{$data[$attribute]}'" : "NULL");
+					$first = false;
+				}
+				return $query.";";
+				break;
+
+			case "foreign":
+				$query .= " WHERE ";
+				$rel_name = $options['rel_name'];
+				$foreign_class = $options['foreign_class'];
+				$rk = $class::relational_keys($foreign_class, $rel_name);
+				$first = true;
+				foreach ($rk as $attribute) {
+					if (!$first)
+						$query .= " AND ";
+					$query .= "{$attribute} = ".(($data[$attribute] != NULL) ? "'{$data[$attribute]}'" : "NULL");
+					$first = false;
+				}
+				return $query.";";
+				break;
+
+			default:
+				return NULL;
+				break;
+		}
+	}
+	
 }
 
 ?>
