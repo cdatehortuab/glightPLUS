@@ -278,7 +278,7 @@ abstract class object_standard implements JsonSerializable
 		$options[$called_class]['attributes'] = $attributes;
 
 		foreach ($attributes as $attribute) {
-			$cod[$called_class][$attribute] = $object->attribute;
+			$cod[$called_class][$attribute] = $object->$attribute;
 		}
 
 		$orm->read_data(array($called_class), $options, $cod);
